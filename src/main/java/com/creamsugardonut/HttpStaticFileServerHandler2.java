@@ -202,13 +202,15 @@ public class HttpStaticFileServerHandler2 extends SimpleChannelInboundHandler<Ht
 	private PartialRequestInfo getPartialRequestInfo(String rangeHeader, long fileLength) {
 		PartialRequestInfo partialRequestInfo = new PartialRequestInfo();
 		long startOffset = 0;
-		long endOffset;
+		long endOffset=fileLength;
 		try {
-			startOffset = Integer
-					.parseInt(rangeHeader.trim().replace(HttpHeaders.Values.BYTES + "=", "").replace("-", ""));
+		    final String range = rangeHeader.trim().replace(HttpHeaders.Values.BYTES + "=", "");
+		    String[] rangeStartEnd = range.split("-");
+		    startOffset = Integer.parseInt(rangeStartEnd[0]);
+		    endOffset = Integer.parseInt(rangeStartEnd[1]);
 		} catch (NumberFormatException e) {
+		    System.out.println("Invalid range format : " + rangeHeader);
 		}
-		endOffset = startOffset + fileLength;
 
 		if (endOffset >= fileLength) {
 			endOffset = fileLength - 1;
